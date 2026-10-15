@@ -1,169 +1,332 @@
 // -----------------------------------------------------------------------------
-// Dashboard widgets (SDK v0.14+, Gladys 5.1+).
+// The "Ariston" dashboard widget: one appliance (a zone, the plant or a water
+// heater, chosen in the widget settings), its temperatures as live tiles, its
+// state as a status list, and a few buttons.
 //
-// A widget puts the integration's own data on the Gladys dashboard without a
-// dedicated core widget. The manifest `widgets` field declares its identity
-// (key, label, icon, optional per-instance `settings`); at runtime the
-// integration returns a DECLARATIVE content — `text`, `value`, `gauge`,
-// `status`, `chart`, `card-list`, `image`, `button` — that the core renders
-// with its own theme, dark mode and translations. No HTML, no CSS.
-//
-// Each entry of WIDGETS is keyed by the widget `key` and exposes:
-//   - get(gladys, { settings, language, units, config }): the content,
-//     registered by index.js with `gladys.onWidgetGet(key, ...)`;
-//   - action(gladys, { actionKey, params, settings, config }) (optional): a
-//     tapped `button` carrying an `action`, registered with
-//     `gladys.onWidgetAction`.
-//
-// Check your contents in the tests with `validateWidgetContent` (exported by
-// the SDK, see test/widgets.test.js), or run with DEBUG=gladys-integration-sdk
-// to have the SDK log every violation of the vocabulary and the budget.
+// Budget of the core: 8 components, 6 tiles, 1 status, 4 buttons. Tiles bound
+// to a device feature follow the published states live; the status list is
+// built from the hub's last reading (no cloud request for a widget).
+// The setpoint buttons are actions (relative to the current setpoint); the
+// mode and power buttons are device-feature buttons, the only ones with a
+// native "active" state. The current choice is marked by the check-circle
+// icon, never by the `primary` style, invisible in dark mode (Gladys#3153).
 // -----------------------------------------------------------------------------
 
-import {
-  createLogger,
-  DEVICE_FEATURE_CATEGORIES,
-  DEVICE_TRANSPORTS,
-  WIDGET_COLORS,
-} from '@gladysassistant/integration-sdk';
-import { identifyDevice } from './devices/index.js';
-import { weatherStation } from './devices/weatherStation.js';
-import { plug } from './devices/plug.js';
-import { light } from './devices/light.js';
+import { WIDGET_COLORS } from '@gladysassistant/integration-sdk';
+import { WATER_HEATER_MODE, zoneGladysModes, zoneModeToGladys } from './ariston/model.js';
+import { FEATURE, DEVICE_TYPE, faultsText, plantIds, waterHeaterIds, zoneIds } from './devices.js';
+import { labels, pick, TEXT } from './i18n.js';
 
-const logger = createLogger({ name: 'widgets' });
+export const WIDGET_ACTIONS = { DOWN: 'setpoint_down', UP: 'setpoint_up' };
 
-// Widget key, as declared in the manifest `widgets` field.
-export const DEMO_STATUS_WIDGET = 'demo_status';
+const TTL_SECONDS = 120;
 
-// Keys of the `button` actions the demo_status content declares.
-const DEMO_STATUS_ACTIONS = { IDENTIFY_LIGHT: 'identify_light' };
+const truncate = (value, max) => (value.length > max ? `${value.slice(0, max - 1)}…` : value);
 
-// How the plug transport reads in the status list.
-const TRANSPORT_STATUS = {
-  [DEVICE_TRANSPORTS.LOCAL]: { value: { en: 'Local', fr: 'Locale' }, color: WIDGET_COLORS.SUCCESS },
-  [DEVICE_TRANSPORTS.CLOUD]: { value: { en: 'Cloud', fr: 'Cloud' }, color: WIDGET_COLORS.INFO },
-  [DEVICE_TRANSPORTS.UNREACHABLE]: {
-    value: { en: 'Unreachable', fr: 'Injoignable' },
-    color: WIDGET_COLORS.DANGER,
-  },
-};
+const textContent = (message, language) => ({
+  ttl_seconds: 60,
+  components: [{ type: 'text', variant: 'body', text: pick(message, language) }],
+});
 
-// A live tile references a feature by its external_id: read it from the
-// discovery payload itself, so the widget and the device never disagree.
-function featureExternalId(gladys, config, blueprint, category) {
-  const device = blueprint.buildDevice(gladys, config);
-  return device.features.find((feature) => feature.category === category).external_id;
-}
-
-function plugConnectionStatus(gladys, config) {
-  const { transport, degraded } = plug.transport(gladys, config);
-  const { value, color } = TRANSPORT_STATUS[transport];
-  if (degraded) {
-    return {
-      value: { en: `${value.en} (degraded mode)`, fr: `${value.fr} (mode dégradé)` },
-      color: WIDGET_COLORS.WARNING,
-    };
+function yesNo(value, language) {
+  if (value === null || value === undefined) {
+    return pick(TEXT.unknown, language);
   }
-  return { value, color };
+  return pick(value ? TEXT.on : TEXT.off, language);
 }
 
-export const WIDGETS = {
-  [DEMO_STATUS_WIDGET]: {
-    // `settings` holds the per-instance values of the declared `settings`
-    // (none here); `language` and `units` are those of the user viewing the
-    // dashboard, for the values you format yourself. Multi-language objects
-    // (`{ en, fr }`) are picked by the core, like everywhere else.
-    async get(gladys, { config }) {
-      logger.debug(`onWidgetGet <- ${DEMO_STATUS_WIDGET}`);
-      return {
-        // Reload policy: the computed parts below only change with the
-        // config, and index.js nudges the widget on every (re)connection and
-        // config update (see refreshWidgets) — the TTL is just a safety net.
-        ttl_seconds: 300,
-        components: [
-          // Device-bound tiles: LIVE, they follow the published states over
-          // the core's real-time path. No TTL, no nudge involved.
-          {
-            type: 'value',
-            label: { en: 'Temperature', fr: 'Température' },
-            icon: 'thermometer',
-            device_feature: featureExternalId(
-              gladys,
-              config,
-              weatherStation,
-              DEVICE_FEATURE_CATEGORIES.TEMPERATURE_SENSOR,
-            ),
-          },
-          {
-            type: 'value',
-            label: { en: 'Office plug', fr: 'Prise du bureau' },
-            icon: 'zap',
-            device_feature: featureExternalId(
-              gladys,
-              config,
-              plug,
-              DEVICE_FEATURE_CATEGORIES.ENERGY_SENSOR,
-            ),
-          },
-          // Computed rows: what the integration knows that no device feature
-          // carries. Served from the core cache until the TTL or a nudge.
-          {
-            type: 'status',
-            items: [
-              {
-                label: { en: 'Plug connection', fr: 'Connexion de la prise' },
-                icon: 'wifi',
-                ...plugConnectionStatus(gladys, config),
-              },
-              {
-                label: { en: 'Observed location', fr: 'Position observée' },
-                icon: 'map-pin',
-                value: `${config.latitude.toFixed(2)}, ${config.longitude.toFixed(2)}`,
-                color: WIDGET_COLORS.NEUTRAL,
-              },
-            ],
-          },
-          // `params` are declared HERE and sent back as-is: the handler never
-          // receives user input (a dashboard can hang on a public wall).
-          {
-            type: 'button',
-            label: { en: 'Identify the light', fr: 'Identifier la lampe' },
-            icon: 'eye',
-            style: 'secondary',
-            action: {
-              key: DEMO_STATUS_ACTIONS.IDENTIFY_LIGHT,
-              params: { device: light.deviceExternalId(gladys) },
-            },
-          },
-        ],
-      };
-    },
+function faultsRow(record, language) {
+  if (!record.faults) {
+    return null;
+  }
+  return {
+    label: pick(TEXT.faults, language),
+    value: truncate(faultsText(record.faults, language), 40),
+    icon: record.faults.length > 0 ? 'alert-triangle' : 'check',
+    color: record.faults.length > 0 ? WIDGET_COLORS.DANGER : WIDGET_COLORS.SUCCESS,
+  };
+}
 
-    // Resolve an optional toast (string or multi-language object, ≤ 200
-    // characters). After a successful action the core drops the cached
-    // content and every open dashboard refetches it: no nudge needed.
-    async action(gladys, { actionKey, params, config }) {
-      logger.info(`onWidgetAction <- ${DEMO_STATUS_WIDGET}.${actionKey}`);
-      if (actionKey === DEMO_STATUS_ACTIONS.IDENTIFY_LIGHT) {
-        return identifyDevice(gladys, params.device, config);
-      }
-      // Throwing acks the action as failed: the message reaches the user.
-      throw new Error(`Unknown widget action: ${actionKey}`);
+function setpointButtons(language) {
+  return [
+    {
+      type: 'button',
+      label: pick(TEXT.down, language),
+      icon: 'minus',
+      style: 'secondary',
+      action: { key: WIDGET_ACTIONS.DOWN },
     },
-  },
-};
+    {
+      type: 'button',
+      label: pick(TEXT.up, language),
+      icon: 'plus',
+      style: 'secondary',
+      action: { key: WIDGET_ACTIONS.UP },
+    },
+  ];
+}
+
+function zoneContent(gladys, record, zone, language) {
+  const { reading, info } = record;
+  const ids = zoneIds(gladys, info.gw, zone.num);
+  const l = labels(language);
+  const mode = zoneModeToGladys(zone.mode, reading.cooling);
+  const plantMode = reading.plantMode ? l[`plant_${reading.plantMode}`] : null;
+  const items = [
+    {
+      label: pick(TEXT.mode, language),
+      value: mode === null ? pick(TEXT.unknown, language) : l[`thermostat_${mode}`],
+      icon: 'sliders',
+    },
+    {
+      label: pick(TEXT.heating, language),
+      value: yesNo(zone.heatRequest, language),
+      icon: 'thermometer',
+      color: zone.heatRequest ? WIDGET_COLORS.WARNING : WIDGET_COLORS.NEUTRAL,
+    },
+  ];
+  if (plantMode) {
+    items.push({
+      label: pick(TEXT.system, language),
+      value: truncate(plantMode, 40),
+      icon: 'home',
+    });
+  }
+  const faults = faultsRow(record, language);
+  if (faults) {
+    items.push(faults);
+  }
+  const offered = zoneGladysModes(zone.modeOptions, false);
+  const modeButtons = [
+    [3, TEXT.schedule],
+    [1, TEXT.manual],
+  ]
+    .filter(([value]) => offered.includes(value))
+    .map(([value, label]) => ({
+      type: 'button',
+      label: pick(label, language),
+      icon: mode === value || (value === 1 && mode === 2) ? 'check-circle' : 'circle',
+      style: 'secondary',
+      device_feature: ids.feature(FEATURE.MODE),
+      value,
+    }));
+  return {
+    ttl_seconds: TTL_SECONDS,
+    components: [
+      {
+        type: 'value',
+        label: pick(TEXT.temperature, language),
+        icon: 'thermometer',
+        device_feature: ids.feature(FEATURE.TEMPERATURE),
+      },
+      {
+        type: 'value',
+        label: pick(TEXT.setpoint, language),
+        icon: 'target',
+        device_feature: ids.feature(FEATURE.TARGET),
+      },
+      { type: 'status', items },
+      ...setpointButtons(language),
+      ...modeButtons,
+    ],
+  };
+}
+
+function plantContent(gladys, record, language) {
+  const { reading, info, layout, hasDhw } = record;
+  const ids = plantIds(gladys, info.gw);
+  const l = labels(language);
+  const components = [];
+  if (hasDhw && layout.dhwTemperature) {
+    components.push({
+      type: 'value',
+      label: pick(TEXT.hotWater, language),
+      icon: 'droplet',
+      device_feature: ids.feature(FEATURE.DHW_TEMPERATURE),
+    });
+  }
+  if (hasDhw) {
+    components.push({
+      type: 'value',
+      label: pick(TEXT.setpoint, language),
+      icon: 'target',
+      device_feature: ids.feature(FEATURE.DHW_TARGET),
+    });
+  }
+  if (layout.pressure) {
+    components.push({
+      type: 'value',
+      label: pick(TEXT.pressure, language),
+      icon: 'activity',
+      device_feature: ids.feature(FEATURE.PRESSURE),
+    });
+  }
+  const items = [];
+  if (reading.plantMode) {
+    items.push({
+      label: pick(TEXT.system, language),
+      value: truncate(l[`plant_${reading.plantMode}`], 40),
+      icon: 'home',
+    });
+  }
+  if (layout.flame) {
+    items.push({
+      label: pick(TEXT.burner, language),
+      value: yesNo(reading.flame, language),
+      icon: 'zap',
+      color: reading.flame ? WIDGET_COLORS.WARNING : WIDGET_COLORS.NEUTRAL,
+    });
+  }
+  if (layout.heatPump) {
+    items.push({
+      label: pick(TEXT.heatPump, language),
+      value: yesNo(reading.heatPump, language),
+      icon: 'wind',
+    });
+  }
+  const faults = faultsRow(record, language);
+  if (faults) {
+    items.push(faults);
+  }
+  if (items.length > 0) {
+    components.push({ type: 'status', items });
+  }
+  if (hasDhw) {
+    components.push(...setpointButtons(language));
+  }
+  return { ttl_seconds: TTL_SECONDS, components };
+}
+
+function waterHeaterContent(gladys, record, language) {
+  const { reading, info } = record;
+  const { family } = info;
+  const ids = waterHeaterIds(gladys, info.gw);
+  const l = labels(language);
+  const components = [
+    {
+      type: 'value',
+      label: pick(TEXT.temperature, language),
+      icon: 'thermometer',
+      device_feature: ids.feature(FEATURE.TEMPERATURE),
+    },
+  ];
+  const settable = Boolean(family.targetField && family.temperatureWrite);
+  if (settable) {
+    components.push({
+      type: 'value',
+      label: pick(TEXT.setpoint, language),
+      icon: 'target',
+      device_feature: ids.feature(FEATURE.TARGET),
+    });
+  }
+  if (family.showersField) {
+    components.push({
+      type: 'value',
+      label: pick(TEXT.showers, language),
+      icon: 'droplet',
+      device_feature: ids.feature(FEATURE.SHOWERS),
+    });
+  }
+  const items = [
+    {
+      label: pick(TEXT.mode, language),
+      value: reading.mode === null ? pick(TEXT.unknown, language) : l[`water_${reading.mode}`],
+      icon: 'sliders',
+    },
+  ];
+  if (family.heatingField) {
+    items.push({
+      label: pick(TEXT.heating, language),
+      value: yesNo(reading.heating, language),
+      icon: 'thermometer',
+      color: reading.heating ? WIDGET_COLORS.WARNING : WIDGET_COLORS.NEUTRAL,
+    });
+  }
+  const faults = faultsRow(record, language);
+  if (faults) {
+    items.push(faults);
+  }
+  components.push({ type: 'status', items });
+  if (settable) {
+    components.push(...setpointButtons(language));
+  }
+  if (Object.values(family.modes).includes(WATER_HEATER_MODE.BOOST)) {
+    components.push({
+      type: 'button',
+      label: l[`water_${WATER_HEATER_MODE.BOOST}`],
+      icon: reading.mode === WATER_HEATER_MODE.BOOST ? 'check-circle' : 'zap',
+      style: 'secondary',
+      device_feature: ids.feature(FEATURE.MODE),
+      value: WATER_HEATER_MODE.BOOST,
+    });
+  }
+  components.push({
+    type: 'button',
+    label: pick(reading.on === false ? TEXT.on : TEXT.off, language),
+    icon: 'power',
+    style: 'secondary',
+    device_feature: ids.feature(FEATURE.POWER),
+    value: reading.on === false ? 1 : 0,
+  });
+  return { ttl_seconds: TTL_SECONDS, components };
+}
 
 /**
- * Freshness nudge: ask the core to re-pull every widget NOW instead of
- * waiting for the content TTL. Call it when you KNOW a computed content
- * changed (here: the config, which drives the plug transport and the observed
- * location) — and after every (re)connection, since the nudges are
- * fire-and-forget: rate-limited core-side to 1 per 10 s per widget, dropped
- * silently while disconnected.
+ * The widget content for the device chosen in its settings.
+ * @param {object} gladys
+ * @param {object|null} data from hub.widgetData(), null if unknown
+ * @param {string} language the user's language, given by the core
  */
-export function refreshWidgets(gladys) {
-  for (const key of Object.keys(WIDGETS)) {
-    gladys.requestWidgetRefresh(key);
+export function buildWidgetContent(gladys, data, language) {
+  if (!data) {
+    return textContent(TEXT.pickDevice, language);
   }
+  const { type, record, zone } = data;
+  if (!record.reading || (type === DEVICE_TYPE.ZONE && !zone)) {
+    return textContent(TEXT.notRead, language);
+  }
+  if (type === DEVICE_TYPE.ZONE) {
+    return zoneContent(gladys, record, zone, language);
+  }
+  if (type === DEVICE_TYPE.PLANT) {
+    return plantContent(gladys, record, language);
+  }
+  return waterHeaterContent(gladys, record, language);
+}
+
+/**
+ * The setpoint feature a widget acts on, and the new value one step away.
+ * @returns {{ featureExternalId: string, value: number } | null}
+ */
+export function nextSetpoint(gladys, data, actionKey) {
+  if (!data?.record?.reading) {
+    return null;
+  }
+  const direction =
+    actionKey === WIDGET_ACTIONS.UP ? 1 : actionKey === WIDGET_ACTIONS.DOWN ? -1 : 0;
+  if (direction === 0) {
+    return null;
+  }
+  const { type, record, zone } = data;
+  const { gw } = record.info;
+  let current;
+  let range;
+  let featureExternalId;
+  if (type === DEVICE_TYPE.ZONE && zone) {
+    current = zone.target;
+    range = zone.targetRange;
+    featureExternalId = zoneIds(gladys, gw, zone.num).feature(FEATURE.TARGET);
+  } else if (type === DEVICE_TYPE.PLANT && record.hasDhw) {
+    current = record.reading.dhwTarget;
+    range = record.reading.dhwTargetRange;
+    featureExternalId = plantIds(gladys, gw).feature(FEATURE.DHW_TARGET);
+  } else if (type === DEVICE_TYPE.WATER_HEATER) {
+    current = record.reading.target;
+    range = { step: 1 };
+    featureExternalId = waterHeaterIds(gladys, gw).feature(FEATURE.TARGET);
+  }
+  if (typeof current !== 'number') {
+    return null;
+  }
+  return { featureExternalId, value: Number((current + direction * range.step).toFixed(2)) };
 }

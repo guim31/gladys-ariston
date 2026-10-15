@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "id": "PlantMode",
+      "zone": 0,
+      "value": 3,
+      "options": [0, 1, 2, 3, 5, 6],
+      "optTexts": ["Summer", "Winter", "Heating only", "Cooling", "Off", "Holiday"]
+    },
+    { "id": "IsFlameOn", "zone": 0, "value": 0 },
+    { "id": "IsHeatingPumpOn", "zone": 0, "value": 1 },
+    { "id": "HeatingCircuitPressure", "zone": 0, "value": 2.1, "unit": "bar", "decimals": 1 },
+    { "id": "OutsideTemp", "zone": 0, "value": 28.0, "unit": "°C", "min": -40, "max": 60 },
+    { "id": "DhwTemp", "zone": 0, "value": 52.5, "unit": "°C", "min": 40, "max": 65, "step": 0.5 },
+    {
+      "id": "DhwStorageTemperature",
+      "zone": 0,
+      "value": 48.3,
+      "unit": "°C",
+      "min": 0,
+      "max": 655.35
+    },
+    { "id": "ZoneMeasuredTemp", "zone": 1, "value": 24.1 },
+    { "id": "ZoneComfortTemp", "zone": 1, "value": 24, "min": 16, "max": 28, "step": 0.5 },
+    { "id": "ZoneMode", "zone": 1, "value": 2, "options": [0, 1, 2, 3] },
+    { "id": "ZoneHeatRequest", "zone": 1, "value": 1 },
+    { "id": "ZoneMeasuredTemp", "zone": 2, "value": 25.3 },
+    { "id": "ZoneComfortTemp", "zone": 2, "value": 25, "min": 16, "max": 28, "step": 0.5 },
+    { "id": "ZoneMode", "zone": 2, "value": 0, "options": [0, 1, 2, 3] },
+    { "id": "ZoneHeatRequest", "zone": 2, "value": 0 }
+  ]
+}

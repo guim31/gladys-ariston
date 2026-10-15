@@ -30,6 +30,22 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration handles:
+
+- **Secrets.** The email and password of the Ariston NET account are stored by
+  Gladys in the integration configuration (the password as a `secret` field,
+  never shown again in the interface). The integration never logs them, nor the
+  email address.
+- **`/data`.** The only file written is `/data/ariston.json`, readable by the
+  container user only: the Ariston NET session token (with a hash of the
+  account it belongs to, not the email itself) and, per appliance, which
+  sensors it reported. Deleting it is harmless: the integration logs in again.
+- **Network.** Outgoing HTTPS only, to `www.ariston-net.remotethermo.com`. No
+  port is opened, nothing is exposed on the local network.
+- **Commands.** Setpoints and modes are checked against the appliance's own
+  range and offered modes before being sent. These appliances have nothing
+  that opens, unlocks or disarms.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+the Ariston NET service and the appliances, which belong to Ariston Group.

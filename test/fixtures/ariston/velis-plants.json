@@ -1,0 +1,34 @@
+[
+  {
+    "gw": "C0FFEE000001",
+    "sys": 4,
+    "wheType": 2,
+    "wheModelType": 1,
+    "name": "Lydos Hybrid",
+    "sn": "TESTSN0000000011"
+  },
+  {
+    "gw": "C0FFEE000002",
+    "sys": 4,
+    "wheType": 8,
+    "wheModelType": 2,
+    "name": "Velis Lux",
+    "sn": "TESTSN0000000012"
+  },
+  {
+    "gw": "C0FFEE000003",
+    "sys": 4,
+    "wheType": 4,
+    "wheModelType": 1,
+    "name": "Nuos Split",
+    "sn": "TESTSN0000000013"
+  },
+  {
+    "gw": "C0FFEE000004",
+    "sys": 4,
+    "wheType": 1,
+    "wheModelType": 1,
+    "name": "Velis Evo",
+    "sn": "TESTSN0000000014"
+  }
+]

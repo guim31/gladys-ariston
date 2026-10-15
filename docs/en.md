@@ -1,61 +1,146 @@
-# Demo Devices Template
+# Ariston NET
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Control from Gladys the **boilers, heat pumps and water heaters of the Ariston group** (Ariston,
+Chaffoteaux, Elco) already connected to the **Ariston NET** or **Chaffoteaux** app: temperatures,
+setpoints, modes, hot water, faults and, when the appliance measures it, gas and electricity consumption.
 
-## What you get
+The integration goes through the Ariston NET cloud (remotethermo), like the official apps: it needs an
+account and an internet connection. It is not affiliated with Ariston Group.
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+> Developed without the hardware: feedback welcome (Gladys forum or GitHub issue).
+
+## What you need
+
+- Gladys 5.1.0 or later.
+- An appliance already installed and visible in the Ariston NET (or Chaffoteaux) app, with the account
+  (email and password) of that app.
+- Target appliances:
+  - boilers and heat pumps with a connected thermostat ("Galevo" system): Genus One, Alteas One, Nimbus,
+    Chaffoteaux INOA, Thision S…;
+  - water heaters Velis Evo, Velis Lux / Lux 2, Lydos (Wi-Fi), Lydos Hybrid, Nuos Split, Andris 2.
 
 ## Configuration
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+In **Integrations → Ariston NET → Configuration**:
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+| Field                 | Purpose                                                                                |
+| --------------------- | -------------------------------------------------------------------------------------- |
+| Email, Password       | The account of the Ariston NET app. The password is a secret: Gladys never shows it.   |
+| Language of the names | Language of the device and feature names (French by default), set when they are added. |
+| Refresh interval      | 3, 5 (default), 10, 15 or 30 minutes.                                                  |
+| Read the faults       | Fault codes, read every 30 minutes (on by default).                                    |
+| Read the consumption  | Gas and electricity of last month, read every 6 hours (off by default).                |
 
-## Actions
+The **Test the connection** button logs in again, lists the appliances of the account (and the ones not
+supported) and updates the **Discovery** tab. Then add the appliances you want from that tab.
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+## Devices
+
+### Boiler or heat pump
+
+One device per plant, with what the plant reports:
+
+- **System mode** (select, controllable): summer (hot water only), winter, heating only, cooling, off,
+  holiday… only the modes the plant offers;
+- **Hot water setpoint** (controllable, within the appliance's bounds) and **Hot water temperature** when a
+  tank probe is fitted;
+- **Burner on**, **Heat pump running**, **Heating pressure** (bar), **Outside temperature**,
+  **Flow temperature**;
+- **Faults**: "No fault" or the list of codes with their description;
+- **last month's** consumption (kWh): gas and electricity, heating and hot water, when the option is on and
+  the appliance measures it.
+
+### Heating zones
+
+One device per zone ("Boiler – Zone 1", or the name given in the app):
+
+- **Temperature** measured in the room;
+- **Setpoint** (controllable): the comfort setpoint, rounded to the appliance's step (often 0.5 °C) and
+  refused outside its bounds;
+- **Mode** (controllable): Off, Heating (manual), Cooling on a reversible heat pump, Auto (= the schedule of
+  the Ariston app);
+- **Heat demand**: heating, cooling or idle.
+
+### Water heaters
+
+- **Power** (controllable);
+- **Water temperature**;
+- **Setpoint** (controllable, from 40 °C to the maximum set in the appliance) — except on the Velis Evo,
+  which is set in number of showers in the app;
+- **Mode** (controllable), translated into the Gladys modes: iMemory = Auto, Green = Eco, Program, Boost,
+  Manual; on the Velis Evo, the Night mode (off-peak hours) shows as Eco; on the Nuos Split,
+  Comfort = Manual and Fast = Boost;
+- **Heating** and **Showers available** when the model provides them;
+- **Faults**.
+
+## Widget
+
+The **Ariston** dashboard widget shows one appliance chosen in its settings:
+
+- a zone: temperature, setpoint, mode, heat demand, system mode, faults; **Lower** / **Raise** buttons (one
+  step) and **Schedule** / **Manual** (the current mode carries a check mark);
+- the boiler: hot water, setpoint, pressure, burner, faults; hot water setpoint buttons;
+- a water heater: temperature, setpoint, showers, mode, heating, faults; setpoint buttons, **Boost** (when
+  the model has it) and on/off.
 
 ## Scenes
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+### Trigger
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+**Ariston fault detected**: an appliance reports a fault code it did not report at the previous reading.
+Filter by appliance and by code; the scene actions get the appliance, the code, the description and the
+"blocking fault" flag. A fault already present when the integration starts triggers nothing (no alert at
+each restart).
 
-## Dashboard
+Setpoints and modes are controlled with the standard **Control a device** action of Gladys.
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+### Scene ideas
+
+- **Breakdown alert**: "Ariston fault detected" → send a message "Boiler fault {{code}}: {{description}}".
+- **Going on holiday**: when the last person leaves the house → system mode to Holiday and the water heater
+  to Eco.
+- **Off-peak hours**: at 10:30 pm → water heater to Boost; at 6 am → back to Auto.
+- **Open window**: opening sensor open for more than 5 minutes → zone Off; closed again → Auto.
+
+## Refresh and service limits
+
+Ariston NET has no documented public API: the integration uses the one of the apps, like the Home
+Assistant integration. Since 2024 the cloud answers "Requests are blocked for N seconds" (HTTP 429) to
+accounts that ask too often, and Ariston support says it does not support the use of its API by third-party
+software. The integration therefore stays frugal:
+
+- one request per appliance and per refresh (zones and hot water included), every 5 minutes by default,
+  never more often than every 3 minutes;
+- faults every 30 minutes, water heater settings and consumption every 6 hours;
+- one request at a time, at least one second apart;
+- when blocked, no request at all until the delay announced by Ariston is over;
+- only the appliances added to Gladys are read;
+- the login token is kept in `/data` so a restart does not log in again.
+
+Do not use another home automation system on the same account at the same time: the requests add up.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **"Ariston NET refused the email or password"**: check them in the Ariston NET app; a password changed in
+  the app must be changed in Gladys too.
+- **"Ariston NET is limiting requests"**: the integration waits and resumes on its own. If it happens
+  often, raise the refresh interval or stop the other tools connected to the same account.
+- **An appliance does not show**: click **Test the connection**; the message also lists the appliances not
+  supported.
+- **A value stays empty**: the appliance does not send it to the cloud, or has not been read yet (wait for
+  a refresh).
+- **A command goes back**: the cloud sometimes confirms before the appliance; the next reading shows the
+  real value.
+- Detailed logs: environment variable `LOG_LEVEL=debug` on the container.
+
+## Limits
+
+- Developed and tested without the hardware nor a real account: behaviour checked against answers
+  reconstructed from the reference library.
+- The Elco / Remocon heat pumps of the "BSB" system are not supported yet (they are reported as such).
+- No schedule editing from Gladys: the schedule stays the app's; the Auto mode follows it.
+- No setting of the Velis Evo number of showers, nor of the advanced settings (anti-legionella, Lydos Hybrid
+  night mode, heating curve).
+- The consumption is last month's as the cloud publishes it, not a real-time meter.
+- Depends on the Ariston NET cloud: without internet or during an outage of the service, no reading nor
+  command.
