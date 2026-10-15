@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-15
+
 ### Added
 
 - Ariston NET account connection (the account of the Ariston NET or Chaffoteaux
@@ -33,4 +35,5 @@ the notes of the version's GitHub Release.
 - Every text in English, French, German and Spanish, and the user guide in the
   four languages.
 
-[Unreleased]: https://github.com/guim31/gladys-ariston/commits/main
+[Unreleased]: https://github.com/guim31/gladys-ariston/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/guim31/gladys-ariston/releases/tag/v1.0.1
