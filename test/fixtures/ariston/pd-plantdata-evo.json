@@ -1,0 +1,16 @@
+{
+  "gw": "C0FFEE000004",
+  "on": false,
+  "mode": 8,
+  "temp": 38,
+  "eco": false,
+  "avShw": 1,
+  "maxAvShw": 4,
+  "reqShw": 2,
+  "maxReqShw": 4,
+  "procReqShw": 2,
+  "shwP1": 2,
+  "tmP1": "06:30:00",
+  "state": false,
+  "rmTm": "01:10:00"
+}

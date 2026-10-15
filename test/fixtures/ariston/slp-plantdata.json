@@ -1,0 +1,12 @@
+{
+  "gw": "C0FFEE000003",
+  "on": true,
+  "mode": 1,
+  "opMode": 0,
+  "waterTemp": 47.5,
+  "comfortTemp": 55,
+  "reducedTemp": 45,
+  "procReqTemp": 55,
+  "boostOn": false,
+  "hpState": 1
+}

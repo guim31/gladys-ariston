@@ -1,0 +1,72 @@
+{
+  "items": [
+    {
+      "id": "PlantMode",
+      "zone": 0,
+      "value": 1,
+      "options": [0, 1, 5],
+      "optTexts": ["Summer", "Winter", "Off"],
+      "unit": null,
+      "decimals": 0
+    },
+    { "id": "IsFlameOn", "zone": 0, "value": 1, "options": [0, 1], "optTexts": ["Off", "On"] },
+    { "id": "IsHeatingPumpOn", "zone": 0, "value": null },
+    {
+      "id": "HeatingCircuitPressure",
+      "zone": 0,
+      "value": 1.4,
+      "unit": "bar",
+      "decimals": 1,
+      "min": 0,
+      "max": 4
+    },
+    {
+      "id": "OutsideTemp",
+      "zone": 0,
+      "value": 9.5,
+      "unit": "°C",
+      "decimals": 1,
+      "min": -40,
+      "max": 60
+    },
+    { "id": "ChFlowTemp", "zone": 0, "value": 55.0, "unit": "°C", "decimals": 1 },
+    {
+      "id": "DhwTemp",
+      "zone": 0,
+      "value": 50,
+      "unit": "°C",
+      "min": 36,
+      "max": 60,
+      "step": 1,
+      "decimals": 0
+    },
+    {
+      "id": "DhwStorageTemperature",
+      "zone": 0,
+      "value": 655.35,
+      "unit": "°C",
+      "min": 0,
+      "max": 655.35
+    },
+    { "id": "Holiday", "zone": 0, "value": false, "expiresOn": null },
+    { "id": "ZoneMeasuredTemp", "zone": 1, "value": 19.6, "unit": "°C", "decimals": 1 },
+    {
+      "id": "ZoneComfortTemp",
+      "zone": 1,
+      "value": 20.5,
+      "unit": "°C",
+      "min": 10,
+      "max": 30,
+      "step": 0.5,
+      "decimals": 1
+    },
+    {
+      "id": "ZoneMode",
+      "zone": 1,
+      "value": 3,
+      "options": [0, 2, 3],
+      "optTexts": ["Off", "Manual", "Programmed"]
+    },
+    { "id": "ZoneHeatRequest", "zone": 1, "value": 1 }
+  ]
+}

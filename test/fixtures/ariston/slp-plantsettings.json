@@ -1,0 +1,9 @@
+{
+  "SlpMaxSetpointTemperature": 65,
+  "SlpMaxSetpointTemperatureMin": 50,
+  "SlpMaxSetpointTemperatureMax": 75,
+  "SlpMinSetpointTemperature": 40,
+  "SlpAntilegionellaOnOff": true,
+  "SlpPreHeatingOnOff": false,
+  "SlpHeatingRate": 1
+}

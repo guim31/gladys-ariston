@@ -1,177 +1,320 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Ariston NET",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Ariston, Chaffoteaux and Elco boilers, heat pumps and water heaters via the Ariston NET cloud.",
+    "fr": "Chaudières, PAC et chauffe-eau Ariston, Chaffoteaux et Elco via le cloud Ariston NET.",
+    "de": "Heizkessel, Wärmepumpen und Warmwasserbereiter von Ariston, Chaffoteaux, Elco über Ariston NET.",
+    "es": "Calderas, bombas de calor y termos Ariston, Chaffoteaux y Elco a través de la nube Ariston NET."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-ariston:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-ariston/main/cover.png",
+  "categories": ["climate"],
+  "transports": ["cloud"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your Ariston NET account",
+        "fr": "Votre compte Ariston NET",
+        "de": "Dein Ariston-NET-Konto",
+        "es": "Su cuenta Ariston NET"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "The account of the Ariston NET (or Chaffoteaux) app, where your appliance already works. Ariston limits the requests of an account: keep a few minutes between refreshes. Not affiliated with Ariston Group.",
+        "fr": "Le compte de l'appli Ariston NET (ou Chaffoteaux), où votre appareil fonctionne déjà. Ariston limite les requêtes d'un compte : gardez quelques minutes entre deux rafraîchissements. Non affilié à Ariston Group.",
+        "de": "Das Konto der App Ariston NET (oder Chaffoteaux), in der dein Gerät schon läuft. Ariston begrenzt die Anfragen eines Kontos: Lass ein paar Minuten zwischen zwei Aktualisierungen. Nicht mit Ariston Group verbunden.",
+        "es": "La cuenta de la aplicación Ariston NET (o Chaffoteaux), donde su aparato ya funciona. Ariston limita las solicitudes de una cuenta: deje unos minutos entre actualizaciones. Sin afiliación con Ariston Group."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://www.ariston-net.remotethermo.com/",
+          "label": {
+            "en": "Ariston NET website",
+            "fr": "Site Ariston NET",
+            "de": "Ariston-NET-Website",
+            "es": "Sitio web de Ariston NET"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "username",
+      "type": "string",
+      "label": {
+        "en": "Email",
+        "fr": "E-mail",
+        "de": "E-Mail",
+        "es": "Correo electrónico"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
+      "placeholder": {
+        "en": "e.g. name@example.com",
+        "fr": "ex. nom@exemple.fr",
+        "de": "z. B. name@beispiel.de",
+        "es": "p. ej. nombre@ejemplo.es"
+      },
       "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "default": ""
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "Password",
+        "fr": "Mot de passe",
+        "de": "Passwort",
+        "es": "Contraseña"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "required": true
     },
     {
-      "key": "unit",
+      "key": "language",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
+      "label": {
+        "en": "Language of the names",
+        "fr": "Langue des noms",
+        "de": "Sprache der Namen",
+        "es": "Idioma de los nombres"
+      },
+      "description": {
+        "en": "Language of the device and feature names, set when a device is added to Gladys.",
+        "fr": "Langue des noms des appareils et fonctionnalités, fixée quand un appareil est ajouté à Gladys.",
+        "de": "Sprache der Geräte- und Funktionsnamen, festgelegt beim Hinzufügen eines Geräts zu Gladys.",
+        "es": "Idioma de los nombres de aparatos y funciones, fijado al añadir un aparato a Gladys."
+      },
       "required": false,
-      "default": "celsius",
+      "default": "fr",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "en",
+          "label": { "en": "English", "fr": "Anglais", "de": "Englisch", "es": "Inglés" }
+        },
+        {
+          "value": "fr",
+          "label": { "en": "French", "fr": "Français", "de": "Französisch", "es": "Francés" }
+        },
+        {
+          "value": "de",
+          "label": { "en": "German", "fr": "Allemand", "de": "Deutsch", "es": "Alemán" }
+        },
+        {
+          "value": "es",
+          "label": { "en": "Spanish", "fr": "Espagnol", "de": "Spanisch", "es": "Español" }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "refresh_minutes",
+      "type": "select",
+      "label": {
+        "en": "Refresh interval",
+        "fr": "Intervalle de rafraîchissement",
+        "de": "Aktualisierungsintervall",
+        "es": "Intervalo de actualización"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "How often the appliances are read: one request per appliance. Ariston blocks accounts that ask too often.",
+        "fr": "Fréquence de lecture des appareils : une requête par appareil. Ariston bloque les comptes trop pressants.",
+        "de": "Wie oft die Geräte gelesen werden: eine Anfrage pro Gerät. Ariston sperrt Konten, die zu oft fragen.",
+        "es": "Frecuencia de lectura de los aparatos: una solicitud por aparato. Ariston bloquea las cuentas demasiado insistentes."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": "5",
+      "options": [
+        {
+          "value": "3",
+          "label": { "en": "3 minutes", "fr": "3 minutes", "de": "3 Minuten", "es": "3 minutos" }
+        },
+        {
+          "value": "5",
+          "label": { "en": "5 minutes", "fr": "5 minutes", "de": "5 Minuten", "es": "5 minutos" }
+        },
+        {
+          "value": "10",
+          "label": {
+            "en": "10 minutes",
+            "fr": "10 minutes",
+            "de": "10 Minuten",
+            "es": "10 minutos"
+          }
+        },
+        {
+          "value": "15",
+          "label": {
+            "en": "15 minutes",
+            "fr": "15 minutes",
+            "de": "15 Minuten",
+            "es": "15 minutos"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "en": "30 minutes",
+            "fr": "30 minutes",
+            "de": "30 Minuten",
+            "es": "30 minutos"
+          }
+        }
+      ]
+    },
+    {
+      "key": "faults",
+      "type": "boolean",
+      "label": {
+        "en": "Read the faults",
+        "fr": "Lire les défauts",
+        "de": "Störungen lesen",
+        "es": "Leer las averías"
+      },
+      "description": {
+        "en": "Fault codes of the appliances, read every 30 minutes, with a scene trigger.",
+        "fr": "Codes de défaut des appareils, lus toutes les 30 minutes, avec un déclencheur de scène.",
+        "de": "Störungscodes der Geräte, alle 30 Minuten gelesen, mit einem Szenenauslöser.",
+        "es": "Códigos de avería de los aparatos, leídos cada 30 minutos, con un disparador de escena."
+      },
+      "required": false,
+      "default": true
+    },
+    {
+      "key": "energy",
+      "type": "boolean",
+      "label": {
+        "en": "Read the consumption",
+        "fr": "Lire la consommation",
+        "de": "Verbrauch lesen",
+        "es": "Leer el consumo"
+      },
+      "description": {
+        "en": "Gas and electricity of last month (boilers and heat pumps that measure it), read every 6 hours.",
+        "fr": "Gaz et électricité du mois dernier (chaudières et PAC qui la mesurent), lus toutes les 6 heures.",
+        "de": "Gas und Strom des letzten Monats (Kessel und Wärmepumpen mit Messung), alle 6 Stunden gelesen.",
+        "es": "Gas y electricidad del mes pasado (calderas y bombas de calor que lo miden), leídos cada 6 horas."
+      },
+      "required": false,
+      "default": false
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 90
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "fault_detected",
+      "label": {
+        "en": "Ariston fault detected",
+        "fr": "Défaut Ariston détecté",
+        "de": "Ariston-Störung erkannt",
+        "es": "Avería Ariston detectada"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "An appliance reports a fault code it did not report at the previous reading.",
+        "fr": "Un appareil signale un code de défaut absent de la lecture précédente.",
+        "de": "Ein Gerät meldet einen Störungscode, der bei der vorigen Abfrage fehlte.",
+        "es": "Un aparato indica un código de avería que no estaba en la lectura anterior."
       },
       "fields": [
         {
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "label": { "en": "Appliance", "fr": "Appareil", "de": "Gerät", "es": "Aparato" }
         },
         {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
+          "key": "code",
+          "type": "string",
+          "label": {
+            "en": "Fault code",
+            "fr": "Code de défaut",
+            "de": "Störungscode",
+            "es": "Código de avería"
+          },
+          "placeholder": {
+            "en": "e.g. 501",
+            "fr": "ex. 501",
+            "de": "z. B. 501",
+            "es": "p. ej. 501"
+          }
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "appliance",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
-        }
-      ]
-    }
-  ],
-  "scene_actions": [
-    {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
-      },
-      "timeout_seconds": 15,
-      "fields": [
+          "label": { "en": "Appliance", "fr": "Appareil", "de": "Gerät", "es": "Aparato" }
+        },
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ],
-      "outputs": [
+          "key": "code",
+          "type": "string",
+          "label": {
+            "en": "Fault code",
+            "fr": "Code de défaut",
+            "de": "Störungscode",
+            "es": "Código de avería"
+          }
+        },
         {
-          "key": "signalled",
+          "key": "description",
+          "type": "string",
+          "label": {
+            "en": "Description",
+            "fr": "Description",
+            "de": "Beschreibung",
+            "es": "Descripción"
+          }
+        },
+        {
+          "key": "blocking",
           "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "label": {
+            "en": "Blocking fault",
+            "fr": "Défaut bloquant",
+            "de": "Blockierende Störung",
+            "es": "Avería bloqueante"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "overview",
+      "label": {
+        "en": "Ariston",
+        "fr": "Ariston",
+        "de": "Ariston",
+        "es": "Ariston"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Temperature, setpoint, mode and faults of a zone, the boiler or a water heater.",
+        "fr": "Température, consigne, mode et défauts d'une zone, de la chaudière ou d'un chauffe-eau.",
+        "de": "Temperatur, Sollwert, Modus und Störungen einer Zone, des Kessels oder eines Boilers.",
+        "es": "Temperatura, consigna, modo y averías de una zona, la caldera o un termo."
+      },
+      "icon": "thermometer",
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": { "en": "Appliance", "fr": "Appareil", "de": "Gerät", "es": "Aparato" },
+          "required": true
+        }
+      ],
+      "action_timeout_seconds": 30
     }
   ]
 }

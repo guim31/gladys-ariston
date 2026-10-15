@@ -1,0 +1,8 @@
+{
+  "SeAntilegionellaOnOff": false,
+  "SeMaxSetpointTemperature": 62,
+  "SeMaxSetpointTemperatureMin": 50,
+  "SeMaxSetpointTemperatureMax": 75,
+  "SePermanentBoostOnOff": false,
+  "SeNightModeOnOff": false
+}

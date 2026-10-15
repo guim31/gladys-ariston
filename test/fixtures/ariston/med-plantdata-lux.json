@@ -1,0 +1,14 @@
+{
+  "gw": "C0FFEE000002",
+  "on": true,
+  "mode": 5,
+  "temp": 64,
+  "reqTemp": 70,
+  "procReqTemp": 70,
+  "heatReq": false,
+  "avShw": 4,
+  "antiLeg": false,
+  "eco": false,
+  "pwrOpt": false,
+  "rmTm": "00:00:00"
+}

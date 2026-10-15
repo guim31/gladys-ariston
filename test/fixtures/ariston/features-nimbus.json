@@ -1,0 +1,17 @@
+{
+  "zones": [
+    { "num": 1, "name": "Rez-de-chaussée", "roomSens": true, "isHidden": false },
+    { "num": 2, "name": "Étage", "roomSens": true, "isHidden": false }
+  ],
+  "hasBoiler": false,
+  "dhwBoilerPresent": true,
+  "dhwModeChangeable": false,
+  "dhwProgSupported": true,
+  "hasMetering": true,
+  "hybridSys": false,
+  "hpSys": true,
+  "autoThermoReg": true,
+  "solar": false,
+  "virtualZones": false,
+  "pilotSupported": false
+}

@@ -1,0 +1,16 @@
+{
+  "zones": [{ "num": 1, "name": "", "roomSens": true, "geofenceDeroga": false, "isHidden": false }],
+  "hasBoiler": true,
+  "dhwBoilerPresent": false,
+  "dhwModeChangeable": true,
+  "dhwProgSupported": true,
+  "dhwHidden": false,
+  "hasMetering": true,
+  "hybridSys": false,
+  "hpSys": false,
+  "autoThermoReg": true,
+  "solar": false,
+  "virtualZones": false,
+  "pilotSupported": false,
+  "weatherProvider": true
+}

@@ -1,0 +1,13 @@
+[
+  {
+    "gw": "A1B2C3D4E5F6",
+    "timestamp": "2026-01-15T07:12:00",
+    "fault": 501,
+    "mult": 0,
+    "code": "501",
+    "pri": 1,
+    "errDex": "Pas de flamme détectée",
+    "res": false,
+    "blk": true
+  }
+]

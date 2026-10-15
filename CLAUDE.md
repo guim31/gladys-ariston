@@ -31,16 +31,23 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+index.js                          SDK wiring only (src/app.js registers every handler)
+src/app.js                        handlers: scan, setValue, poll, device created, action, widget, config
+src/hub.js                        login, discovery, refresh timer, states, faults trigger, status
+src/devices.js                    Ariston appliances -> Gladys devices and states (pure)
+src/commands.js                   Gladys commands -> Ariston NET writes, checked against the appliance
+src/widgets.js                    "Ariston" dashboard widget (pure builders)
+src/ariston/client.js             cloud HTTP client: single queue, 1 s spacing, 429 block, 405 relogin
+src/ariston/model.js              reading the cloud's answers, water heater families, mode mappings
+src/store.js                      /data/ariston.json: token, plant layouts
+src/i18n.js                       every user-facing text, en/fr/de/es
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
+src/issues.js                     repeated failures logged once
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+docs/{en,fr,de,es}.md             user documentation, same sections (test/i18n.test.js)
+scripts/probe.mjs                 real cloud, read-only: refusal of an invented account, or answer shapes
+test/                             node --test, SDK fake Gladys + test/helpers/fakeCloud.js
+test/fixtures/ariston/            reconstructed cloud answers (see its README)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +77,11 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** exists in four languages (English, French, German with
+  "du", Spanish with "usted"): manifest texts, action and status messages,
+  widget texts, feature names (`src/i18n.js`), and `docs/en.md`, `docs/fr.md`,
+  `docs/de.md`, `docs/es.md` with the same sections. `test/i18n.test.js`
+  enforces it.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -233,3 +243,42 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Ariston NET (propre à cette intégration)
+
+**API.** Non documentée ; référence : `fustom/python-ariston-api` (MIT) et son fork `mauropriori/python-ariston-api`
+(MIT, résilience). Base `https://www.ariston-net.remotethermo.com/api/v2/`, en-tête `ar.authToken`, user agent de
+l'appli (`RestSharp/106.11.7.0`, celui de la bibliothèque). Connexion `POST accounts/login {usr, pwd}` → `{token}`.
+
+- Systèmes (`sys` des plants) : 3 = Galevo (chaudières, PAC : `remote/plants`), 4 = Velis (chauffe-eau :
+  `velis/plants`, famille par `wheType`), 5 = BSB (Elco/Remocon, **non pris en charge**, signalé au démarrage).
+- Galevo : une seule requête par lecture, `POST remote/dataItems/<gw>/get?umsys=si` avec la liste des items
+  (`PlantMode`, `DhwTemp`… sur la zone 0, `ZoneComfortTemp`… sur chaque zone) et les `features` lues une fois
+  (`remote/plants/<gw>/features`). Écriture : `…/set?umsys=si` avec `{items:[{id, prevValue, value, zone}], features}`.
+- Velis : lecture `GET velis/<plantData>/<gw>` ; `plantData` dépend de la famille (`plantData` Velis Evo,
+  `medPlantData` Evo 2/Andris 2/Lux/Lux 2/Lydos, `sePlantData` Lydos Hybrid, `slpPlantData` Nuos Split).
+  **Piège** : le Velis Evo lit sur `plantData` mais écrit son mode sur `medPlantData` (comme la bibliothèque).
+  Le Nuos Split écrit confort et réduit ensemble (`temperatures {new:{comfort,reduced}, old:{…}}`).
+  `switch` prend un booléen nu comme corps JSON.
+- Codes de mode **différents par famille** (Lux : 1/5/9, Lux 2 : 1/5 seulement, Lydos Hybrid : 1/2/6/7,
+  Nuos : `opMode` 0..3) : tout passe par `WATER_HEATER_FAMILIES` dans `src/ariston/model.js`.
+- Sonde absente : la valeur vaut le `max` de l'item (655.35) : ne pas créer la fonctionnalité.
+- Fin de boost Lydos Hybrid : le mode peut revenir `null`, `0` ou inconnu ; ne rien publier dans ce cas.
+
+**Quotas.** Depuis mai 2024 : `429` avec le corps `Requests are blocked for N seconds` (Home Assistant a dû
+passer de 60 s à 180 s de rafraîchissement, 600 s pour les défauts). Jeton expiré : **HTTP 405** (pas 401).
+Le support Ariston dit ne pas prendre en charge l'usage de son API par des tiers. D'où : une file unique, 1 s
+entre deux requêtes, aucune requête pendant un blocage, pas de nouvel essai immédiat sur un 5xx, rafraîchissement
+3 min minimum (5 par défaut), défauts 30 min, réglages et consommation 6 h, seuls les appareils ajoutés lus,
+jeton gardé dans `/data`. Le rapport d'énergie des Lydos répond parfois 500 : les lectures secondaires
+(défauts, consommation) ne font jamais échouer la lecture principale.
+
+**Choix tranchés.** `thermostat/mode` (5.1.0) plutôt que `thermostat/preset` (5.2.0 seulement) : Auto = programme
+horaire Ariston, « manuel nuit » affiché Chauffage et préféré à l'écriture comme le fait HA. Mode d'installation
+en `text/select` (valeurs `summer`, `winter`… stables). Pas de fonctionnalité `boost` séparée (le Nuos a Fast en
+mode : la règle du cœur interdit les deux). Défauts : déclencheur à chaque nouveau code, ligne de base sans
+événement au démarrage.
+
+**Vérification.** Le cloud est injoignable depuis une session de code (proxy) : `node scripts/probe.mjs`
+(faux compte → refus attendu) et, avec `ARISTON_USERNAME`/`ARISTON_PASSWORD`, la forme des vraies réponses à
+comparer aux fixtures reconstruites de `test/fixtures/ariston/`.

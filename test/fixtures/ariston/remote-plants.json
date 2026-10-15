@@ -1,0 +1,32 @@
+[
+  {
+    "gw": "A1B2C3D4E5F6",
+    "sys": 3,
+    "name": "Chaudière",
+    "sn": "TESTSN0000000001",
+    "fwVer": "1.2.30",
+    "hpmpSys": false,
+    "isOffline48H": false,
+    "lnk": 1,
+    "loc": "Paris",
+    "tcByGuest": false
+  },
+  {
+    "gw": "0F1E2D3C4B5A",
+    "sys": 3,
+    "name": "Nimbus",
+    "sn": "TESTSN0000000002",
+    "fwVer": "2.4.10",
+    "hpmpSys": true,
+    "isOffline48H": false,
+    "lnk": 1,
+    "loc": "Lyon",
+    "tcByGuest": false
+  },
+  {
+    "gw": "BB5B5B5B5B01",
+    "sys": 5,
+    "name": "Elco Aerotop",
+    "sn": "TESTSN0000000003"
+  }
+]
