@@ -81,7 +81,8 @@ Das Dashboard-Widget **Ariston** zeigt ein Gerät, das du in seinen Einstellunge
   **Erhöhen** (ein Schritt) und **Zeitprogramm** / **Manuell** (der aktuelle Modus hat ein Häkchen);
 - der Heizkessel: Warmwasser, Sollwert, Druck, Brenner, Störungen; Knöpfe für den Warmwasser-Sollwert;
 - ein Warmwasserbereiter: Temperatur, Sollwert, Duschen, Modus, Heizen, Störungen; Sollwert-Knöpfe,
-  **Boost** (wenn das Modell ihn hat) und An/Aus.
+  **Boost** (wenn das Modell ihn hat; ein zweiter Druck beendet den Boost und kehrt zum Modus davor
+  zurück) und An/Aus.
 
 ## Szenen
 

@@ -174,3 +174,33 @@ test('a setpoint button beyond the range is refused, the toast says why', async 
     await w.app.stop();
   }
 });
+
+test('the Boost button ends the boost when tapped again (back to the mode before)', async () => {
+  const w = await createWorld();
+  try {
+    const lux = id(`water_heater:${GW.LUX}`);
+    const device = discovered(w, lux);
+    const mode = device.features.find((f) => f.external_id === `${lux}:mode`);
+    const boost = async () => {
+      const ack = await w.gladys.fake.widgetGet('overview', {
+        settings: { device: lux },
+        language: 'en',
+        units: 'metric',
+      });
+      return ack.data.content.components.find(
+        (component) => component.device_feature === `${lux}:mode`,
+      );
+    };
+    const before = await boost();
+    assert.equal(before.label, 'Boost');
+    assert.equal(before.value, 3);
+    await w.gladys.fake.setValue(device, mode, 4); // Manual, the mode to come back to
+    await w.gladys.fake.setValue(device, mode, before.value);
+    const during = await boost();
+    assert.equal(during.label, 'Stop boost');
+    assert.equal(during.icon, 'check-circle');
+    assert.equal(during.value, 4, 'back to Manual (Gladys mode 4)');
+  } finally {
+    await w.app.stop();
+  }
+});

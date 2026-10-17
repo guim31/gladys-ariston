@@ -81,8 +81,8 @@ El widget **Ariston** del panel muestra un aparato elegido en sus ajustes:
 - una zona: temperatura, consigna, modo, demanda de calor, modo de la instalación, averías; botones
   **Bajar** / **Subir** (un paso) y **Programa** / **Manual** (el modo actual lleva una marca);
 - la caldera: agua caliente, consigna, presión, quemador, averías; botones de consigna de agua caliente;
-- un termo: temperatura, consigna, duchas, modo, calentamiento, averías; botones de consigna, **Boost**
-  (si el modelo lo tiene) y encendido/apagado.
+- un termo: temperatura, consigna, duchas, modo, calentamiento, averías; botones de consigna, **Boost** (si el modelo lo tiene;
+  una segunda pulsación termina el boost y vuelve al modo anterior) y encendido/apagado.
 
 ## Escenas
 
