@@ -80,8 +80,8 @@ Le widget **Ariston** du tableau de bord affiche un appareil choisi dans ses ré
 - une zone : température, consigne, mode, demande de chauffe, mode de l'installation, défauts ; boutons
   **Baisser** / **Monter** (d'un pas) et **Programme** / **Manuel** (le mode en cours porte une coche) ;
 - la chaudière : eau chaude, consigne, pression, brûleur, défauts ; boutons de consigne eau chaude ;
-- un chauffe-eau : température, consigne, douches, mode, chauffe, défauts ; boutons de consigne, **Boost**
-  (si le modèle l'a) et marche/arrêt.
+- un chauffe-eau : température, consigne, douches, mode, chauffe, défauts ; boutons de consigne, **Boost** (si le modèle l'a ;
+  un second appui arrête le boost et revient au mode d'avant) et marche/arrêt.
 
 ## Scènes
 

@@ -250,6 +250,12 @@ export const TEXT = {
   unknown: { en: 'Unknown', fr: 'Inconnu', de: 'Unbekannt', es: 'Desconocido' },
   down: { en: 'Lower', fr: 'Baisser', de: 'Senken', es: 'Bajar' },
   up: { en: 'Raise', fr: 'Monter', de: 'Erhöhen', es: 'Subir' },
+  stopBoost: {
+    en: 'Stop boost',
+    fr: 'Arrêter le boost',
+    de: 'Boost beenden',
+    es: 'Parar el boost',
+  },
   schedule: { en: 'Schedule', fr: 'Programme', de: 'Zeitprogramm', es: 'Programa' },
   manual: { en: 'Manual', fr: 'Manuel', de: 'Manuell', es: 'Manual' },
   pickDevice: {

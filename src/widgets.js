@@ -251,13 +251,19 @@ function waterHeaterContent(gladys, record, language) {
     components.push(...setpointButtons(language));
   }
   if (Object.values(family.modes).includes(WATER_HEATER_MODE.BOOST)) {
+    // A tap on the Boost while boosting ends it (forum t/10385/254): back to
+    // the mode seen before it, else the first mode of the family.
+    const boosting = reading.mode === WATER_HEATER_MODE.BOOST;
+    const back =
+      record.lastMode ??
+      Object.values(family.modes).find((mode) => mode !== WATER_HEATER_MODE.BOOST);
     components.push({
       type: 'button',
-      label: l[`water_${WATER_HEATER_MODE.BOOST}`],
-      icon: reading.mode === WATER_HEATER_MODE.BOOST ? 'check-circle' : 'zap',
+      label: boosting ? pick(TEXT.stopBoost, language) : l[`water_${WATER_HEATER_MODE.BOOST}`],
+      icon: boosting ? 'check-circle' : 'zap',
       style: 'secondary',
       device_feature: ids.feature(FEATURE.MODE),
-      value: WATER_HEATER_MODE.BOOST,
+      value: boosting ? back : WATER_HEATER_MODE.BOOST,
     });
   }
   components.push({

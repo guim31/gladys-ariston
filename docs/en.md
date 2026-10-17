@@ -80,8 +80,8 @@ The **Ariston** dashboard widget shows one appliance chosen in its settings:
 - a zone: temperature, setpoint, mode, heat demand, system mode, faults; **Lower** / **Raise** buttons (one
   step) and **Schedule** / **Manual** (the current mode carries a check mark);
 - the boiler: hot water, setpoint, pressure, burner, faults; hot water setpoint buttons;
-- a water heater: temperature, setpoint, showers, mode, heating, faults; setpoint buttons, **Boost** (when
-  the model has it) and on/off.
+- a water heater: temperature, setpoint, showers, mode, heating, faults; setpoint buttons, **Boost** (when the model has it; tapped
+  again, it ends the boost and goes back to the mode before) and on/off.
 
 ## Scenes
 

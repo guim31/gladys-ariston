@@ -12,6 +12,7 @@ import {
   gladysModeToZone,
   plantModeCode,
   WATER_HEATER_DEFAULT_MAX_SETPOINT,
+  WATER_HEATER_MODE,
   WATER_HEATER_MIN_SETPOINT,
   waterHeaterMaxSetpoint,
   zoneGladysModes,
@@ -172,6 +173,10 @@ async function waterHeaterCommand(client, record, key, value, language) {
       new: code,
     });
     reading.mode = Number(value);
+    // The mode the Boost of the widget goes back to (src/widgets.js).
+    if (reading.mode !== WATER_HEATER_MODE.BOOST) {
+      record.lastMode = reading.mode;
+    }
     return `mode ${code} (${value})`;
   }
   throw fail(MESSAGES.modeNotOffered, language);

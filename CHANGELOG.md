@@ -10,6 +10,11 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Fixed
+
+- The Boost button of the widget could not end a boost: tapped again, it now
+  goes back to the mode seen before the boost.
+
 ## [1.0.1] - 2026-10-15
 
 ### Added

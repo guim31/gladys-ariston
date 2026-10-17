@@ -29,6 +29,7 @@ import {
   readFaults,
   readGalevo,
   readWaterHeater,
+  WATER_HEATER_MODE,
   ZONE_ITEMS,
 } from './ariston/model.js';
 import { runCommand } from './commands.js';
@@ -266,6 +267,10 @@ export class AristonHub {
       }
       record.raw = await this.client.getWaterHeaterData(info.family.plantData, info.gw);
       record.reading = readWaterHeater(info.family, record.raw);
+      // The mode to go back to when the Boost of the widget is tapped again.
+      if (record.reading.mode !== null && record.reading.mode !== WATER_HEATER_MODE.BOOST) {
+        record.lastMode = record.reading.mode;
+      }
     }
     if (this.config.faults && this.now() - (record.faultsAt ?? -Infinity) >= TIMINGS.faultsMs) {
       await this.optional(record, 'faults', async () => {
