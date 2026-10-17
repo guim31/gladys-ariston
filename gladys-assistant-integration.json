@@ -8,8 +8,8 @@
     "de": "Heizkessel, Wärmepumpen und Warmwasserbereiter von Ariston, Chaffoteaux, Elco über Ariston NET.",
     "es": "Calderas, bombas de calor y termos Ariston, Chaffoteaux y Elco a través de la nube Ariston NET."
   },
-  "version": "1.0.1",
-  "docker_image": "ghcr.io/guim31/gladys-ariston:1.0.1",
+  "version": "1.0.2",
+  "docker_image": "ghcr.io/guim31/gladys-ariston:1.0.2",
   "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/guim31/gladys-ariston/main/cover.png",
   "categories": ["climate"],
