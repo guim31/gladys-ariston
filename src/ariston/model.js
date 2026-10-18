@@ -432,11 +432,20 @@ export function readWaterHeater(family, data) {
     mode,
     heating: typeof heating === 'boolean' ? heating : null,
     showers: showers === null ? null : Math.max(0, Math.round(showers)),
-    eco: typeof eco === 'boolean' ? eco : null,
-    remaining: family.remainingField ? minutesOf(data?.[family.remainingField]) : null,
-    antiLegionella: typeof antiLegionella === 'boolean' ? antiLegionella : null,
+    eco: flag(eco),
+    remaining: family.remainingField
+      ? clampMinutes(minutesOf(data?.[family.remainingField]))
+      : null,
+    antiLegionella: flag(antiLegionella),
   };
 }
+
+/** A boolean the cloud may send as 0 / 1: true, false or null. */
+const flag = (value) =>
+  typeof value === 'boolean' ? value : value === 0 || value === 1 ? value === 1 : null;
+
+/** Within the bounds of the feature (a day). */
+const clampMinutes = (minutes) => (minutes === null ? null : Math.min(minutes, 1440));
 
 /** "01:25:00" → 85 (minutes), null when not a duration. */
 export function minutesOf(value) {

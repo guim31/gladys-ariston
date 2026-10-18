@@ -200,4 +200,6 @@ test('Med water heaters: Eco, time left to heat, anti-legionella cycle (t/10385/
   assert.equal(reading.remaining, 85);
   assert.equal(readWaterHeater(lux, { ...data, rmTm: 'garbage' }).remaining, null);
   assert.equal(readWaterHeater(lux, { ...data, eco: undefined }).eco, null);
+  assert.equal(readWaterHeater(lux, { ...data, eco: 1 }).eco, true, 'a 0 / 1 flag is read too');
+  assert.equal(readWaterHeater(lux, { ...data, rmTm: '30:00:00' }).remaining, 1440);
 });
