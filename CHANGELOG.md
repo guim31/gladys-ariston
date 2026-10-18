@@ -10,6 +10,13 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Added
+
+- Velis Lux, Evo and the other water heaters of the same generation: the Eco
+  function (a switch), the time left to heat and the anti-legionella cycle in
+  progress, as features and in the widget. Update the device from the
+  Discover tab to get them.
+
 ## [1.0.2] - 2026-10-17
 
 ### Fixed

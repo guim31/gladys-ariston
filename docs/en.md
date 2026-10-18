@@ -71,6 +71,7 @@ One device per zone ("Boiler – Zone 1", or the name given in the app):
   Manual; on the Velis Evo, the Night mode (off-peak hours) shows as Eco; on the Nuos Split,
   Comfort = Manual and Fast = Boost;
 - **Heating** and **Showers available** when the model provides them;
+- on the Velis Lux, Evo and other models of the same generation: **Eco** (a switch, the learning function of the app, beside the mode), **Time left to heat** (minutes) and **Anti-legionella cycle** (on while the cycle runs);
 - **Faults**.
 
 ## Widget

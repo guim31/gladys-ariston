@@ -260,3 +260,18 @@ test('a write blocked by the rate limit is refused with a clear message', async 
     await w.app.stop();
   }
 });
+
+test('the Eco switch of a Med water heater writes switchEco with a bare boolean', async () => {
+  const w = await world();
+  try {
+    await set(w, `water_heater:${GW.LUX}`, 'eco', 1);
+    assert.deepEqual(
+      { path: writes(w).at(-1).path, body: writes(w).at(-1).body },
+      { path: `velis/medPlantData/${GW.LUX}/switchEco`, body: true },
+    );
+    await set(w, `water_heater:${GW.LUX}`, 'eco', 0);
+    assert.equal(writes(w).at(-1).body, false);
+  } finally {
+    await w.app.stop();
+  }
+});

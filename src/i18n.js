@@ -42,6 +42,9 @@ export const NAMES = {
     water_temperature: 'Water temperature',
     heating: 'Heating',
     showers: 'Showers available',
+    eco: 'Eco',
+    remaining_time: 'Time left to heat',
+    anti_legionella: 'Anti-legionella cycle',
     zone: 'Zone {n}',
   },
   fr: {
@@ -66,6 +69,9 @@ export const NAMES = {
     water_temperature: "Température de l'eau",
     heating: 'Chauffe en cours',
     showers: 'Douches disponibles',
+    eco: 'Éco',
+    remaining_time: 'Temps de chauffe restant',
+    anti_legionella: 'Cycle anti-légionellose',
     zone: 'Zone {n}',
   },
   de: {
@@ -90,6 +96,9 @@ export const NAMES = {
     water_temperature: 'Wassertemperatur',
     heating: 'Heizt gerade',
     showers: 'Verfügbare Duschen',
+    eco: 'Eco',
+    remaining_time: 'Verbleibende Aufheizzeit',
+    anti_legionella: 'Anti-Legionellen-Zyklus',
     zone: 'Zone {n}',
   },
   es: {
@@ -114,6 +123,9 @@ export const NAMES = {
     water_temperature: 'Temperatura del agua',
     heating: 'Calentando',
     showers: 'Duchas disponibles',
+    eco: 'Eco',
+    remaining_time: 'Tiempo de calentamiento restante',
+    anti_legionella: 'Ciclo antilegionela',
     zone: 'Zona {n}',
   },
 };
@@ -250,6 +262,7 @@ export const TEXT = {
   unknown: { en: 'Unknown', fr: 'Inconnu', de: 'Unbekannt', es: 'Desconocido' },
   down: { en: 'Lower', fr: 'Baisser', de: 'Senken', es: 'Bajar' },
   up: { en: 'Raise', fr: 'Monter', de: 'Erhöhen', es: 'Subir' },
+  inProgress: { en: 'In progress', fr: 'En cours', de: 'Läuft', es: 'En curso' },
   stopBoost: {
     en: 'Stop boost',
     fr: 'Arrêter le boost',

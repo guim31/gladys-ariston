@@ -71,6 +71,7 @@ Un appareil par zone (« Chaudière – Zone 1 », ou le nom donné dans l'appli
   Boost, Manuel ; sur le Velis Evo, le mode Nuit (heures creuses) apparaît comme Éco ; sur le Nuos Split,
   Comfort = Manuel et Fast = Boost ;
 - **Chauffe en cours** et **Douches disponibles** quand le modèle les fournit ;
+- sur les Velis Lux, Evo et modèles de la même génération : **Éco** (un interrupteur, la fonction d'apprentissage de l'appli, à côté du mode), **Temps de chauffe restant** (minutes) et **Cycle anti-légionellose** (actif pendant le cycle) ;
 - **Défauts**.
 
 ## Widget

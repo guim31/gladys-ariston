@@ -119,6 +119,14 @@ function medFamily(key, label, modes) {
     heatingField: 'heatReq',
     showersField: 'avShw',
     settingsPrefix: 'Med',
+    // Med water heaters (Velis Evo, Lux, Andris…), as fustom/python-ariston-api
+    // reads them: the Eco function (a switch of its own, beside the mode), the
+    // time left to reach the setpoint ("HH:MM:SS") and the anti-legionella
+    // cycle in progress (forum t/10385/267, Velis Tech Dry Wi-Fi).
+    ecoField: 'eco',
+    ecoWrite: { plantData: 'medPlantData', action: 'switchEco' },
+    remainingField: 'rmTm',
+    antiLegionellaField: 'antiLeg',
   };
 }
 
@@ -413,6 +421,10 @@ export function readWaterHeater(family, data) {
   const heating = family.heatingField ? data?.[family.heatingField] : undefined;
   const showers = family.showersField ? finite(data?.[family.showersField]) : null;
   const on = data?.on;
+  const eco = family.ecoField ? data?.[family.ecoField] : undefined;
+  const antiLegionella = family.antiLegionellaField
+    ? data?.[family.antiLegionellaField]
+    : undefined;
   return {
     on: typeof on === 'boolean' ? on : null,
     temperature: finite(data?.[family.currentField]),
@@ -420,7 +432,25 @@ export function readWaterHeater(family, data) {
     mode,
     heating: typeof heating === 'boolean' ? heating : null,
     showers: showers === null ? null : Math.max(0, Math.round(showers)),
+    eco: flag(eco),
+    remaining: family.remainingField
+      ? clampMinutes(minutesOf(data?.[family.remainingField]))
+      : null,
+    antiLegionella: flag(antiLegionella),
   };
+}
+
+/** A boolean the cloud may send as 0 / 1: true, false or null. */
+const flag = (value) =>
+  typeof value === 'boolean' ? value : value === 0 || value === 1 ? value === 1 : null;
+
+/** Within the bounds of the feature (a day). */
+const clampMinutes = (minutes) => (minutes === null ? null : Math.min(minutes, 1440));
+
+/** "01:25:00" → 85 (minutes), null when not a duration. */
+export function minutesOf(value) {
+  const match = /^(\d{1,3}):(\d{2})(?::(\d{2}))?$/.exec(String(value ?? '').trim());
+  return match ? Number(match[1]) * 60 + Number(match[2]) : null;
 }
 
 /** The native mode code to write for a Gladys water heater mode, or null. */
