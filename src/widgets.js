@@ -15,7 +15,7 @@
 import { WIDGET_COLORS } from '@gladysassistant/integration-sdk';
 import { WATER_HEATER_MODE, zoneGladysModes, zoneModeToGladys } from './ariston/model.js';
 import { FEATURE, DEVICE_TYPE, faultsText, plantIds, waterHeaterIds, zoneIds } from './devices.js';
-import { labels, pick, TEXT } from './i18n.js';
+import { labels, names, pick, TEXT } from './i18n.js';
 
 export const WIDGET_ACTIONS = { DOWN: 'setpoint_down', UP: 'setpoint_up' };
 
@@ -240,6 +240,30 @@ function waterHeaterContent(gladys, record, language) {
       value: yesNo(reading.heating, language),
       icon: 'thermometer',
       color: reading.heating ? WIDGET_COLORS.WARNING : WIDGET_COLORS.NEUTRAL,
+    });
+  }
+  // Med water heaters (Velis Lux, Evo…): Eco, time left, anti-legionella.
+  if (reading.eco !== null && reading.eco !== undefined) {
+    items.push({
+      label: names(language).eco,
+      value: yesNo(reading.eco, language),
+      icon: 'feather',
+      color: reading.eco ? WIDGET_COLORS.SUCCESS : WIDGET_COLORS.NEUTRAL,
+    });
+  }
+  if (reading.remaining > 0) {
+    items.push({
+      label: names(language).remaining_time,
+      value: `${reading.remaining} min`,
+      icon: 'clock',
+    });
+  }
+  if (reading.antiLegionella) {
+    items.push({
+      label: names(language).anti_legionella,
+      value: pick(TEXT.inProgress, language),
+      icon: 'shield',
+      color: WIDGET_COLORS.WARNING,
     });
   }
   const faults = faultsRow(record, language);

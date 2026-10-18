@@ -72,6 +72,7 @@ Un aparato por zona («Caldera – Zona 1», o el nombre dado en la aplicación)
   Manual; en el Velis Evo, el modo Noche (horas valle) aparece como Eco; en el Nuos Split,
   Comfort = Manual y Fast = Boost;
 - **Calentando** y **Duchas disponibles** cuando el modelo los proporciona;
+- en los Velis Lux, Evo y modelos de la misma generación: **Eco** (un interruptor, la función de aprendizaje de la aplicación, junto al modo), **Tiempo de calentamiento restante** (minutos) y **Ciclo antilegionela** (activo mientras dura el ciclo);
 - **Averías**.
 
 ## Widget

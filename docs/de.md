@@ -71,6 +71,7 @@ Ein Gerät pro Zone („Heizkessel – Zone 1“ oder der Name aus der App):
   Manuell; beim Velis Evo erscheint der Nachtmodus (Niedertarif) als Eco; beim Nuos Split ist
   Comfort = Manuell und Fast = Boost;
 - **Heizt gerade** und **Verfügbare Duschen**, wenn das Modell sie liefert;
+- bei Velis Lux, Evo und Modellen derselben Generation: **Eco** (ein Schalter, die Lernfunktion der App, neben dem Modus), **Verbleibende Aufheizzeit** (Minuten) und **Anti-Legionellen-Zyklus** (aktiv, solange der Zyklus läuft);
 - **Störungen**.
 
 ## Widget

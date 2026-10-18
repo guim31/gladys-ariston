@@ -51,6 +51,9 @@ export const FEATURE = {
   POWER: 'power',
   HEATING: 'heating',
   SHOWERS: 'showers',
+  ECO: 'eco',
+  REMAINING_TIME: 'remaining_time',
+  ANTI_LEGIONELLA: 'anti_legionella',
 };
 
 const ENERGY_FEATURES = [
@@ -359,6 +362,34 @@ export function buildWaterHeaterDevice(gladys, heater, config) {
       }),
     );
   }
+  if (family.ecoField && family.ecoWrite) {
+    features.push(
+      feature(ids, FEATURE.ECO, {
+        name: n.eco,
+        category: 'switch',
+        type: 'binary',
+        read_only: false,
+        has_feedback: true,
+        min: 0,
+        max: 1,
+      }),
+    );
+  }
+  if (family.remainingField) {
+    features.push(
+      feature(ids, FEATURE.REMAINING_TIME, {
+        name: n.remaining_time,
+        category: 'duration',
+        type: 'integer',
+        unit: 'minutes',
+        min: 0,
+        max: 1440,
+      }),
+    );
+  }
+  if (family.antiLegionellaField) {
+    features.push(binarySensor(ids, FEATURE.ANTI_LEGIONELLA, n.anti_legionella, 'input', 'binary'));
+  }
   if (config.faults) {
     features.push(textFeature(ids, FEATURE.FAULTS, n.faults));
   }
@@ -490,6 +521,15 @@ export function waterHeaterStates(gladys, record, config) {
   }
   if (family.showersField) {
     push(FEATURE.SHOWERS, reading.showers);
+  }
+  if (family.ecoField && family.ecoWrite && reading.eco !== null) {
+    push(FEATURE.ECO, bit(reading.eco));
+  }
+  if (family.remainingField) {
+    push(FEATURE.REMAINING_TIME, reading.remaining);
+  }
+  if (family.antiLegionellaField && reading.antiLegionella !== null) {
+    push(FEATURE.ANTI_LEGIONELLA, bit(reading.antiLegionella));
   }
   if (config.faults && record.faults) {
     states.push(text(ids.feature(FEATURE.FAULTS), faultsText(record.faults, config.language)));

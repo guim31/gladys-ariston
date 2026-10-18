@@ -142,6 +142,13 @@ async function waterHeaterCommand(client, record, key, value, language) {
     reading.on = on;
     return `power ${on ? 'on' : 'off'}`;
   }
+  if (key === FEATURE.ECO && family.ecoWrite) {
+    const eco = Number(value) === 1;
+    // The body is the bare boolean, as for the power switch.
+    await client.setWaterHeater(family.ecoWrite.plantData, gw, family.ecoWrite.action, eco);
+    reading.eco = eco;
+    return `eco ${eco ? 'on' : 'off'}`;
+  }
   if (key === FEATURE.TARGET && family.targetField && family.temperatureWrite) {
     const max = waterHeaterMaxSetpoint(family, settings) ?? WATER_HEATER_DEFAULT_MAX_SETPOINT;
     const setpoint = checkSetpoint(

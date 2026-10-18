@@ -130,6 +130,9 @@ test('water heaters: state, modes mapped onto the Gladys modes, both ways', () =
     mode: WATER_HEATER_MODE.AUTO,
     heating: true,
     showers: 3,
+    eco: null,
+    remaining: null,
+    antiLegionella: null,
   });
   assert.equal(gladysModeToWaterHeater(lydos, WATER_HEATER_MODE.ECO), 2, 'Green');
   assert.equal(gladysModeToWaterHeater(lydos, WATER_HEATER_MODE.BOOST), 7);
@@ -186,4 +189,15 @@ test('last month consumption: heating and hot water, gas and electricity', () =>
     dhwGas: null,
     dhwElectricity: null,
   });
+});
+
+test('Med water heaters: Eco, time left to heat, anti-legionella cycle (t/10385/267)', () => {
+  const lux = WATER_HEATER_FAMILIES[8];
+  const data = { ...fixture('med-plantdata-lux.json'), eco: true, antiLeg: true, rmTm: '01:25:00' };
+  const reading = readWaterHeater(lux, data);
+  assert.equal(reading.eco, true);
+  assert.equal(reading.antiLegionella, true);
+  assert.equal(reading.remaining, 85);
+  assert.equal(readWaterHeater(lux, { ...data, rmTm: 'garbage' }).remaining, null);
+  assert.equal(readWaterHeater(lux, { ...data, eco: undefined }).eco, null);
 });
