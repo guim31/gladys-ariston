@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-18
+
 ### Added
 
 - Velis Lux, Evo and the other water heaters of the same generation: the Eco
@@ -49,6 +51,7 @@ the notes of the version's GitHub Release.
 - Every text in English, French, German and Spanish, and the user guide in the
   four languages.
 
-[Unreleased]: https://github.com/guim31/gladys-ariston/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/guim31/gladys-ariston/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/guim31/gladys-ariston/compare/v1.0.2...v1.1.0
 [1.0.2]: https://github.com/guim31/gladys-ariston/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/guim31/gladys-ariston/releases/tag/v1.0.1

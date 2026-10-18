@@ -1,6 +1,6 @@
 {
   "name": "gladys-ariston",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "private": true,
   "description": "Ariston NET (Ariston, Chaffoteaux, Elco) integration for Gladys Assistant.",
   "type": "module",
